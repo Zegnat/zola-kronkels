@@ -1,0 +1,79 @@
+{% macro copyright(config) -%}
+{% set this_year = now() | date(format="%Y") -%}
+{% if config.start and config.end -%}
+    {% if config.start > config.end -%}
+        {% set start = config.end -%}
+        {% set end = config.start -%}
+    {% else -%}
+        {% set start = config.start -%}
+        {% set end = config.end -%}
+    {% endif -%}
+{% else -%}
+    {% set start = config.start | default(value=now() | date(format="%Y")) -%}
+    {% set end = false -%}
+{% endif -%}
+{% if config.author -%}
+    {% set author = ', ' -%}
+    {% if config.author_link -%}
+        {% set author = author ~ '<a rel="author" href="' ~ config.author_link ~ '">' -%}
+    {% endif -%}
+    {% set author = author ~ config.author -%}
+    {% if config.author_link -%}
+        {% set author = author ~ '</a>' -%}
+    {% endif -%}
+{% else -%}
+    {%set author = '' -%}
+{% endif -%}
+{% if config.licence -%}
+    {%set suffix = '<a rel="license" href="' ~ config.licence ~ '">Some rights reserved.</a>' -%}
+{% else -%}
+    {%set suffix = 'All rights reserved.' -%}
+{% endif -%}
+<small>© Copyright {{ start }}{% if end %}–{{ end }}{% else %}—{% endif -%}{{ author | safe }}. {{ suffix | safe }}</small>
+{%- endmacro copyright %}
+
+{% macro pager(paginator, previous='prev', next='next', first=2, last=2, around=2) -%}
+{% if paginator.number_pagers > 1 -%}
+    {% set start = paginator.current_index - around -%}
+    {% if start < 1 %}{% set start = 1 %}{% endif -%}
+    {% set end = paginator.current_index + around + 1 -%}
+    {% if end > paginator.number_pagers %}{% set end = paginator.number_pagers + 1 %}{% endif -%}
+    {% set render = range(start=1,end=1+first) | concat(with=range(start=paginator.number_pagers+1-last,end=paginator.number_pagers + 1)) -%}
+    {% for n in range(start=start, end=end) -%}
+        {% set_global render = render | concat(with=n) -%}
+    {% endfor -%}
+    {# Fix for https://github.com/getzola/zola/issues/866 -#}
+    {% if paginator.base_url is ending_with('//') -%}
+        {% set base_url = paginator.base_url | truncate(length=paginator.base_url|length - 1, end='') -%}
+    {% else -%}
+        {% set base_url = paginator.base_url -%}
+    {% endif -%}
+    {% if paginator.previous -%}
+        {% set previous_index = paginator.current_index - 1 -%}
+        {% set previous_url = base_url ~ previous_index  ~ '/' -%}
+    {% else -%}
+        {% set previous_url = base_url ~ paginator.current_index ~ '/' -%}
+    {% endif -%}
+    {% if paginator.next -%}
+        {% set next_index = paginator.current_index + 1 -%}
+        {% set next_url = base_url ~ next_index  ~ '/' -%}
+    {% else -%}
+        {% set next_url = base_url ~ paginator.current_index ~ '/' -%}
+    {% endif -%}
+    <nav>
+      <ul>
+        <li><a href="{{ previous_url | safe }}"{% if not paginator.previous %} aria-disabled="true" tabindex="-1"{% endif %}>{{ previous }}</a></li>
+        {% for page in range(start=1, end=paginator.number_pagers + 1) -%}
+        {% if render is containing(page) -%}
+        <li><a href="{{ base_url ~ page ~ '/' }}"{% if paginator.current_index == page %} aria-current="page"{% endif %}>{{ page }}</a></li>
+        {% set_global skipped_previous = false -%}
+        {% elif skipped_previous == false -%}
+        <li>…</li>
+        {%- set_global skipped_previous = true -%}
+        {%- endif -%}
+        {%- endfor -%}
+        <li><a href="{{ next_url | safe }}"{% if not paginator.next %} aria-disabled="true" tabindex="-1"{% endif %}>{{ next }}</a></li>
+      </ul>
+    </nav>
+    {%- endif %}
+{%- endmacro pager %}

@@ -1,0 +1,29 @@
+{% import "macros.html" as macros %}
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+  <head>
+    <meta charset="utf-8">
+    <title>{{ section.title | default(value="") }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ get_url(path="style.css", trailing_slash=false) }}">
+  </head>
+  <body>
+    <header>
+      <h1><a href="{{ config.base_url }}">{{ section.title | default(value=page.title) | default(value="") }}</a></h1>
+    </header>
+    {% block main -%}
+    <ol class="post-listing" reversed>
+      {% for post in paginator.pages -%}
+      <li>
+          {{ post.date | date(format="%d %b %Y") }}: <a href="{{ post.permalink }}">{{ post.title }}</a>
+        </a>
+      </li>
+      {%- endfor %}
+    </ol>
+    {{ macros::pager(paginator=paginator,first=1, last=1, around=1, previous='Newer', next='Older') }}
+    {% endblock main -%}
+    <footer>
+      {{ macros::copyright(config=config.extra.copyright) }}
+    </footer>
+  </body>
+</html>

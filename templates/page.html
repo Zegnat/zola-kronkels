@@ -1,0 +1,9 @@
+{% extends "index.html" %}
+{% block main %}
+<article>
+  <footer>
+    <p>Scribbled on <time datetime="{{ page.date | date(format="%Y-%m-%d") }}">{{ page.date | date(format="%d %b %Y") }}</time></p>
+  </footer>
+  {{ page.content | safe }}
+</article>
+{% endblock main %}

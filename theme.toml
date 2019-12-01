@@ -1,0 +1,10 @@
+name = "Kronkels"
+description = "The theme used for generating Martijn’s Kronkels blog."
+license = "0BSD"
+homepage = "https://github.com/Zegnat/zola-kronkels"
+min_version = "0.9.0" # Not sure about this, but it is the version I run.
+demo = "https://kronkels.licit.li/"
+
+[author]
+name = "Martijn van der Ven"
+homepage = "https://vanderven.se/martijn/"
